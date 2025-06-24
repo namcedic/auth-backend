@@ -12,6 +12,7 @@ import { User } from '@database/entities/user.entity';
 import { Request as ExpressRequest } from 'express';
 import { AuthPayload } from '@common/types/auth';
 import { CurrentUser } from '@common/decorators/user.decorator';
+import { RefreshTokenInput } from '@modules/auth/dto/requests/refresh-token.input';
 
 interface AuthedRequest extends ExpressRequest {
   user: AuthPayload;
@@ -29,6 +30,7 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   login(@Request() req: AuthedRequest) {
+    console.log('login', req.user);
     return this.authService.login(req.user);
   }
 
@@ -36,6 +38,11 @@ export class AuthController {
   @Get('me')
   getProfile(@CurrentUser() user: AuthPayload) {
     return this.authService.getProfile(user.sub);
+  }
+
+  @Post('/refresh-token')
+  async refreshToken(@Body() input: RefreshTokenInput) {
+    return this.authService.refreshToken(input);
   }
 
   @UseGuards(AuthGuard('jwt'))

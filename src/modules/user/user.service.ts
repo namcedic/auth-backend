@@ -26,7 +26,7 @@ export class UserService {
 
   async validateUser(payload: AuthPayload): Promise<boolean> {
     return !!(await this.usersRepository.findOne({
-      where: { id: payload.id, email: payload.email },
+      where: { id: payload.sub, email: payload.email },
     }));
   }
 }
