@@ -41,13 +41,17 @@ export class AuthService {
     return this.generateTokens(payload);
   }
 
-  async register(user: Partial<User>): Promise<User> {
+  async register(user: Partial<User>): Promise<any> {
     const existedUser = await this.userService.findOneByEmail(user.email);
 
     if (existedUser) {
       throw new BadRequestException('User already exists');
     }
-    return this.userService.create(user);
+    this.userService.create(user);
+
+    return {
+      success: true,
+    };
   }
 
   async getProfile(userId: number): Promise<Partial<User>> {
@@ -77,10 +81,18 @@ export class AuthService {
       throw new BadRequestException('User does not exist');
     }
 
-    return this.generateTokens({ ...authPayload });
+    return await this.generateTokens({ ...authPayload });
   }
 
-  async generateTokens(payload: { sub: number; email: string }) {
+  async generateTokens(payload: {
+    sub: number;
+    email: string;
+    exp?: number;
+    iat?: number;
+  }) {
+    if (payload.exp) delete payload.exp;
+    if (payload.iat) delete payload.iat;
+
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
       expiresIn: process.env.JWT_EXPIRES_IN,

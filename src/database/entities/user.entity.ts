@@ -12,6 +12,12 @@ export class User {
   @Column({ nullable: false })
   password: string;
 
+  @Column({ nullable: false, name: 'first_name' })
+  firstName: string;
+
+  @Column({ nullable: false, name: 'last_name' })
+  lastName: string;
+
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
